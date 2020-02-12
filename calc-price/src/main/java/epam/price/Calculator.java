@@ -5,17 +5,13 @@ import java.math.BigDecimal;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-import static epam.price.ShippingCoefficients.getPricePerKilogram;
-import static epam.price.ShippingCoefficients.getPricePerKilometer;
-
 public class Calculator {
-    final static String QUIT_FROM_PROGRAM = "Q";
 
-    final static Logger logger = Logger.getLogger(Calculator.class.getName());
+    final String QUIT_FROM_PROGRAM = "Q";
+    final Logger logger = Logger.getLogger(Calculator.class.getName());
+    Scanner scanner = new Scanner(System.in);
 
-    static Scanner scanner = new Scanner(System.in);
-
-    public static void shippingCostCalculator() throws IOException {
+    public void shippingCostCalculator(ShippingCoefficients shippingCoefficients) throws IOException {
         BigDecimal distance = null;
         BigDecimal weight = null;
         int i = 0;
@@ -35,7 +31,7 @@ public class Calculator {
                     break;
                 }
                 case 2: {
-                    System.out.println(calculatePrice(distance, weight));
+                    System.out.println("Price of delivery:" + calculatePrice(distance, weight, shippingCoefficients));
                     i = 0;
                     break;
                 }
@@ -43,23 +39,23 @@ public class Calculator {
         } while (true);
     }
 
-    private static BigDecimal calculatePrice(BigDecimal distance, BigDecimal weight) throws IOException {
+    private BigDecimal calculatePrice(BigDecimal distance, BigDecimal weight, ShippingCoefficients coefficients) throws IOException {
         BigDecimal costOfDistanceDelivery;
         BigDecimal costOfWightDelivery;
         BigDecimal costOfDelivery;
 
-        costOfDistanceDelivery = distance.multiply(getPricePerKilometer(distance.doubleValue()));
-        costOfWightDelivery = weight.multiply(getPricePerKilogram(distance.doubleValue()));
+        costOfDistanceDelivery = distance.multiply(coefficients.getPricePerKilometer(distance.doubleValue()));
+        costOfWightDelivery = weight.multiply(coefficients.getPricePerKilogram(distance.doubleValue()));
         costOfDelivery = costOfDistanceDelivery.add(costOfWightDelivery).setScale(2, BigDecimal.ROUND_HALF_UP);
 
-        logger.info("Distance = " + distance + " Price per km = " + getPricePerKilometer(distance.doubleValue()) +
-                " Weight = " + weight + " Price per kg = " + getPricePerKilogram(weight.doubleValue()) +
+        logger.info("Distance = " + distance + " Price per km = " + coefficients.getPricePerKilometer(distance.doubleValue()) +
+                " Weight = " + weight + " Price per kg = " + coefficients.getPricePerKilogram(weight.doubleValue()) +
                 " Cost of delivery = " + costOfDelivery);
 
         return costOfDelivery;
     }
 
-    private static Double enteredDoubleValue(){
+    private Double enteredDoubleValue(){
         Double readValue;
         do {
             if(enteredValueDouble()){
@@ -71,31 +67,31 @@ public class Calculator {
         } while (true);
     }
 
-    private static String readStringFromConsole(){
+    private String readStringFromConsole(){
         String stringFromConsole = scanner.next();
         logger.info("Прочитанна строка:" + stringFromConsole);
         return stringFromConsole;
     }
 
-    private static boolean enteredValueDouble(){
+    private boolean enteredValueDouble(){
         boolean enteredValueIsNumber = scanner.hasNextDouble();
         logger.info(enteredValueIsNumber ? "Было введено число" : "Введена строка, которую нельзя преобразовать к числу");
         return enteredValueIsNumber;
     }
 
-    private static Double readDoubleValue(){
+    private Double readDoubleValue(){
         Double valueFromConsole = Double.parseDouble(readStringFromConsole());
         logger.info("Строка была преобразована в число: " + valueFromConsole);
         return valueFromConsole;
     }
 
-    private static boolean doubleValueCorrect(Double enteredValue){
+    private boolean doubleValueCorrect(Double enteredValue){
         boolean valueIsCorrect = enteredValue >= 0;
         logger.info(valueIsCorrect ? "Введено корректное значение" : "Введено некорректное значение. Число должно быть больше либо равно 0");
         return valueIsCorrect;
     }
 
-    private static void tryExitProgram(String enteredString){
+    private void tryExitProgram(String enteredString){
         if(enteredString.equalsIgnoreCase(QUIT_FROM_PROGRAM)){
             logger.info("User quit from program");
             scanner.close();
